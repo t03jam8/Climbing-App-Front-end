@@ -14,7 +14,6 @@ var albumBucketName = 'climbing-kd';
 var bucketRegion = 'eu-west-1';
 var IdentityPoolId = 'eu-west-1:ffdcc2f5-641f-4ee8-8270-b4a8f508f60a';
 
-
 AWS.config.update({
   region: bucketRegion,
   credentials: new AWS.CognitoIdentityCredentials({
@@ -55,13 +54,20 @@ class WallEditorComponent extends React.Component {
   }
 
   createWall = (data) => {
+    const body = new FormData();
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        body.append(key, data[key]);
+      }
+    }
+
     fetch('http://Karina-MacBookPro.local:3000/route', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${this.props.auth.token}`
       },
-      body: JSON.stringify(data)
+      body
     })
   }
 
@@ -69,7 +75,8 @@ class WallEditorComponent extends React.Component {
     name: '',
     path: '',
     difficulty: '',
-    gym: ''
+    gym: '',
+    image: '',
   }
 
   handleChanges = (e) => {
@@ -94,52 +101,57 @@ class WallEditorComponent extends React.Component {
 
   handleSubmit = (e) => {
     // this.createAlbum('walls');
-    console.log("state when we SET THE ROUTE", this.state);
-    if (!this.state.path) {
-      this.state.path = 'http://www.planet-rock.com/wp-content/uploads/2017/08/MoonBoard.jpg'
-    }
+    // console.log("state when we SET THE ROUTE", this.state);
+    // if (!this.state.path) {
+    //   this.state.path = 'http://www.planet-rock.com/wp-content/uploads/2017/08/MoonBoard.jpg'
+    // }
     this.createWall({
       name: this.state.name,
-      path: this.state.path,
+      // path: this.state.path,
       difficulty: this.state.difficulty,
       gym: this.state.gym,
-      date: moment()
+      date: moment(),
+      image: this.state.image
     })
   }
 
   handlePath = (event) => {
-    let location;
-    var files = event.target.files;
-    if (!files.length) {
-      return alert('Please choose a file to upload first.');
-    }
-    var file = files[0];
-    var fileName = uuid();
-    var albumPhotosKey = 'walls/';
-    var photoKey = albumPhotosKey + fileName;
-    console.log({
-      photoKey,
-      file,
-    });
-    s3.upload({
-      Key: photoKey,
-      Body: file,
-      ACL: 'public-read'
-    }, (err, data) => {
-      if (err) {
-        console.log(err);
-        return console.error('There was an error uploading your photo: ', err.message);
-      }
-      console.log('Successfully uploaded photo.', data.Location, this.state);
-      this.setState({
-        "path": data.Location
-      });
-    });
-    console.log("tets",this);
-    // this.setState({
-    //   "path": location
-    // })
+    this.setState({
+      image: event.target.files[0]
+    })
+    // let location;
+    // var files = event.target.files;
+    // if (!files.length) {
+    //   return alert('Please choose a file to upload first.');
+    // }
+    // var file = files[0];
+    // var fileName = uuid();
+    // var albumPhotosKey = 'walls/';
+    // var photoKey = albumPhotosKey + fileName;
+    // console.log({
+    //   photoKey,
+    //   file,
+    // });
+    // s3.upload({
+    //   Key: photoKey,
+    //   Body: file,
+    //   ACL: 'public-read'
+    // }, (err, data) => {
+    //   if (err) {
+    //     console.log(err);
+    //     return console.error('There was an error uploading your photo: ', err.message);
+    //   }
+    //   console.log('Successfully uploaded photo.', data.Location, this.state);
+    //   this.setState({
+    //     "path": data.Location
+    //   });
+    // });
+    // console.log("tets",this);
+    // // this.setState({
+    // //   "path": location
+    // // })
   }
+
   render () {
     const styles = {
       button: {

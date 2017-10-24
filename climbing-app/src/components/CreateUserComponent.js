@@ -150,7 +150,6 @@ class CreateUserComponent extends React.Component {
            labelPosition="before"
            style={styles.button}
            containerElement="label"
-          //  onCh``ange={this.handlePath}
         >
           <input
             id="files"
